@@ -1,0 +1,34 @@
+
+#book-list .edit {
+	display: none;
+}
+
+#book-list .editing .normal {
+	display: none;
+}
+
+#book-list .editing .edit {
+	display: inline;
+}
+
+.view button {
+	display: none;
+}
+
+.selected button {
+	display: inline;
+}
+
+.item {
+	height: 25px;
+}
+
+label.book_name, label.book_author {
+	width: 148px;
+	display: inline-block;
+}
+
+label.book_status {
+	width: 75px;
+	display: inline-block;
+}
