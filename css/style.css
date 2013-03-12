@@ -15,8 +15,16 @@
 	display: none;
 }
 
+#book-list {
+	width: 600px;
+}
+
 .selected button {
 	display: inline;
+}
+
+.selected {
+	background-color: #AFEEEE;
 }
 
 .item {
