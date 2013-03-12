@@ -16,10 +16,9 @@ function handleRawRequest($_SERVER, $_GET, $_POST) {
 			$arguments = file_get_contents('php://input');
 			break;
 		case 'PUT':
-			parse_str(file_get_contents('php://input'), $arguments);
+			$arguments = file_get_contents('php://input');
 			break;
 		case 'DELETE':
-			parse_str(file_get_contents('php://input'), $arguments);
 			break;
 	}
 	$accept = $_SERVER['HTTP_ACCEPT'];
@@ -35,8 +34,14 @@ function getFullUrl($_SERVER) {
 	return $protocol . '://' . $_SERVER['HTTP_HOST'] . $location;
 }
 
+function getId() {
+	$pos = strpos($_SERVER['REQUEST_URI'], 'handler.php');
+	$id = substr($_SERVER['REQUEST_URI'], $pos + strlen('handler.php/'));
+	return $id;
+}
+
 function handleRequest($url, $method, $arguments, $accept) {
-	if ($method == 'GET') {
+/*	if ($method == 'GET') {
 		if (isset($arguments['search']))
 			searchBooks($arguments['search']);
 		else if (isset($arguments['delete']))
@@ -53,6 +58,22 @@ function handleRequest($url, $method, $arguments, $accept) {
 		else {
 			updateBook($arguments);
 		}
+	}*/
+	
+	if ($method == 'GET') {
+		if (isset($arguments['search']))
+			searchBooks($arguments['search']);
+		else
+			getBooks();
+	}
+	else if ($method == 'POST') {
+		addBook($arguments);
+	}
+	else if ($method == 'DELETE') {
+		deleteBook(getId());
+	}
+	else if ($method == 'PUT') {
+		updateBook($arguments);
 	}
 }
 

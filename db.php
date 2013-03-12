@@ -44,12 +44,12 @@ function updateBook($data) {
 function getBooks() {
     try {
         $db = getConnection() or die("Could not connect");
-		$books = pg_fetch_all(pg_query($db, "SELECT * FROM BOOK"));
+		$books = pg_fetch_all(pg_query($db, "SELECT * FROM BOOK ORDER BY id"));
 		pg_close($db);
 		
 		if ($books == false) $books = array();
 		
-        echo '{"book": ' . json_encode($books) . '}';
+        echo json_encode($books);
     } catch(PDOException $e) {
         echo '{"error":{"text":'. $e->getMessage() .'}}';
     }
@@ -60,7 +60,7 @@ function searchBooks($name) {
         $db = getConnection() or die("Could not connect");
 		$books = pg_fetch_all(pg_query_params($db, "SELECT * FROM BOOK WHERE name LIKE $1", array('%'.$name.'%')));
 		pg_close($db);
-		
+
 		if ($books == false) $books = array();
 		
         echo '{"book": ' . json_encode($books) . '}';

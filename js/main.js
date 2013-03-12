@@ -1,21 +1,16 @@
 $(document).ready(function() {
 	var handler = 'handler.php';
 
-	function searchBooks(searchKey) {
-		$.ajax({
-			type: 'GET',
-			url: handler + "?search=" + encodeURI(searchKey),
-			dataType: "json"
-		});
-	}
-
 	var app = {};
 
 	var editing = false;
 
 	app.Book = Backbone.Model.extend({
+		url: function() {
+			return handler + "/" + this.id;
+		},
+
 		defaults: {
-			id: -1,
 			name: '',
 			author: '',
 			status: 0
@@ -24,14 +19,7 @@ $(document).ready(function() {
 
 	app.BookList = Backbone.Collection.extend({
 		model: app.Book,
-
-		filterByName: function(name) {
-			if (name === null || name === '')
-				return this;
-			return _(this.filter(function(book) {
-				return book.get("name").indexOf(name) !== -1;
-			}));
-		}
+		url: handler
 	});
 
 	app.bookList = new app.BookList();
@@ -84,35 +72,17 @@ $(document).ready(function() {
 			});
 			
 			if (value1 && value2) {
-				$.ajax({
-					type: 'POST',
-					contentType: 'application/json',
-					url: handler,
-					dataType: "json",
-					data: data,
-					success: function(data, textStatus, jqXHR) {
-						self.model.save({name: value1, author: value2, status: value3});
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						alert('There was an error while updating a book: ' + textStatus);
-					}
+				this.model.save({
+					name: value1,
+					author: value2,
+					status: value3
 				});
 			}
 			editing = false;
 			this.$el.removeClass('editing');
 		},
 		deleteItem: function() {
-			var self = this;
-			$.ajax({
-				type: 'GET',
-				url: handler + '?delete=' + self.model.get("id"),
-				success: function(data, textStatus, jqXHR) {
-					app.bookList.remove(self.model);
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					alert('There was an error while deleting a book: ' + textStatus);
-				}
-			});
+			this.model.destroy();
 		},
 		select: function() {
 			if (!editing) {
@@ -137,17 +107,7 @@ $(document).ready(function() {
 			app.bookList.on('reset', this.addAll, this);
 			app.bookList.on('remove', this.addAll, this);
 
-			this.read();
-		},
-		read: function() {
-			$.ajax({
-				type: 'GET',
-				url: handler,
-				dataType: "json",
-				success: function(data) {
-					app.bookList.reset(data.book);
-				}
-			});
+			app.bookList.fetch();
 		},
 		events: {
 			'click #add_book': 'createBook',
@@ -155,31 +115,15 @@ $(document).ready(function() {
 		},
 		createBook: function() {
 			if (this.input_name.val().trim() !== '' && this.input_author.val().trim() !== '') {
-				var self = this;
+				var book = new app.Book({
+						name: this.input_name.val(),
+						author: this.input_author.val(),
+						status: this.input_status.val(),
+						type: "add"
+				});
 				
-				var data = JSON.stringify({
-						"name": this.input_name.val(),
-						"author": this.input_author.val(),
-						"status": this.input_status.val(),
-						"type": "add"
-				});
-
-				$.ajax({
-					type: 'POST',
-					contentType: 'application/json',
-					url: handler,
-					dataType: "json",
-					data: data,
-					success: function(data, textStatus, jqXHR) {
-						self.input_name.val("");
-						self.input_author.val("");
-						self.input_status.val(0);
-						self.read();
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						alert('There was an error while saving a book: ' + textStatus);
-					}
-				});
+				book.save();
+				app.bookList.add(book);
 			}
 		},
 		addOne: function(book) {
@@ -190,27 +134,16 @@ $(document).ready(function() {
 		},
 		addAll: function() {
 			this.$('#book-list').html('');
-			app.bookList.each(this.addOne, this);
-		},
-		newAttributes: function() {
-			return {
-				name: this.input_name.val(),
-				author: this.input_author.val(),
-				status: this.input_status.val()
-			};
+//			app.bookList.each(this.addOne, this);
+			var text = $('#input_search').val().toUpperCase();
+			_(app.bookList.models.filter(function(book) { return (book.get("name").toUpperCase()).indexOf(text) !== -1; })).each(this.addOne, this);
 		},
 		search: function() {
-			$.ajax({
-				type: 'GET',
-				url: handler + "?search=" + encodeURI($('#input_search').val()),
-				dataType: "json",
-				success: function(data) {
-					app.bookList.reset(data.book);
-				}
-			});
+			app.bookList.fetch();
 		}
 	});
 
-	app.appView = new app.AppView();
-});
+	app.appView = new app.AppView();	
+	
 
+});
