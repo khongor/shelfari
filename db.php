@@ -70,8 +70,7 @@ function searchBooks($name) {
 }
 
 function getConnection() {
-//	pg_connect("host=ec2-23-21-105-133.compute-1.amazonaws.com port=5432 dbname=dcnrb6h8d21qqp user=lbamoozbuarlxb password=gMOdA0fePD6M_9eY_MT1dhgWjg sslmode=require options='--client_encoding=UTF8'");
-	return pg_Connect("host=localhost port=5432 dbname=postgres user=postgres password=1");
+	return pg_connect("host=ec2-23-21-105-133.compute-1.amazonaws.com port=5432 dbname=dcnrb6h8d21qqp user=lbamoozbuarlxb password=gMOdA0fePD6M_9eY_MT1dhgWjg sslmode=require options='--client_encoding=UTF8'");
 }
 
 ?>
